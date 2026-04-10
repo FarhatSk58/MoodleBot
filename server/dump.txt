@@ -1,0 +1,30 @@
+--- Table 0 ---
+R0 | Offering Branches: | CSE (AI&ML), CSE (Data Science)
+R1 | Course code: | 20AM3401/20DS3401
+R2 | Course Category: | PCC
+R3 | Course Type: | Theory
+R4 | Prerequisites: | -
+R5 | Prerequisites: | -
+R6 | COURSE OUTCOMES | COURSE OUTCOMES
+R7 | Upon successful completion of the course, the student will be able to: | Upon successful completion of the course, the student will be able to:
+R8 | CO1 | Understand the fundamentals of software engineering.
+R9 | CO2 | Apply various lifecycle activities for project development.
+R10 | CO3 | Apply Risk and Quality Management Strategies for project development
+R11 | CO4 | Analyze the various requirements, design and Testing Techniques to select the appropriate techniques for the software project development
+R12 | Course Content | Course Content
+R13 | UNIT-1 | INTRODUCTION TO SOFTWARE ENGINEERING: The Nature of Software: Defining Software, Characteristics of Software, Software Application Domains, Legacy Software. The changing Nature of Software: Web apps, Mobile apps, cloud computing, Product-line software. Software Process: Defining Software Engineering and Realities lead to s/w Engineering, Software engineering -A layered technology, Software Process, Software Process Framework (The process framework, umbrella activities)- Defining a framework Activity, Identifying the Task set, Process Patterns. Software Engineering Practice: The Essence of Practice, General principles. Software Development myths: Management myths, Customer Myths, Practitioner's myths. PROCESS MODELS: Perspective Process Models - Waterfall model, Incremental process model, Evolutionary process models: prototyping, spiral Unified Process Model Agile Process Model – Agility Principles, Extreme programming.
+--- Table 1 ---
+R0 | UNIT-2 | REQUIREMENTS ENGINEERING: Requirements engineering tasks-Inception, Elicitation, Elaboration, Negotiation, Specification, Validation, Requirement management. Establishing the Groundwork- Identifying Stakeholders, Recognizing Multiple viewpoints, Working towards collaboration, Asking the First Questions, Non -functional requirements, Traceability. Eliciting requirements- Collaborative Requirements Gathering, Quality Function Deployment, Usage	Scenarios, Elicitation Work products. Developing use cases Building the Analysis Model: Elements of the Analysis model(Scenario based elements, Class based elements, Behavioral elements). Negotiating requirements validating requirements. Agile Requirements: User Stories, Backlog Management. Requirements Analysis -Analysis rules of thumb Scenario Based Modeling – Creating & Refining a Preliminary Usecase, Writing a formal Usecase.
+R1 | UNIT-3 | DESIGN ENGINEERING: Design process: Software Quality Guidelines and Attributes, The Evolution of Software Design Design concepts: Abstraction, Architecture, Patterns, Separation of data, Modularity, Data hiding, Refinement, Aspects, Functional independence, Refactoring The Design Model: Data design elements, Architectural design elements, Interface design elements, Component level diagram elements, Deployment level design elements. ARCHITECTURAL	DESIGN: Software architecture: What is Architecture and its importance, Architectural Descriptions and Decisions, Architectural styles: Architectural Styles: Data centered Architectures, Data-Flow Architectures, Call and Return Architectures,  Layered	Architectures, Object-Oriented Architectures and Patterns Architectural Design: Representing the system in context, Defining Archetypes. Agility and Architecture
+R2 | UNIT-4 | SOFTWARE TESTING STRATEGIES: A strategic approach to software testing: Verification and Validation, Organizing for Software Testing, Software Testing Strategy, Criteria for completion of testing Test strategies for conventional software: Unit testing, Integration testing Test strategies for Object-Oriented software: Unit testing in the OO Context, Integration testing in OO context Validation Testing: Validation Test Criteria, Configuration Review, Alpha and Beta Testing System Testing: Recovery Testing, Security Testing, Stress Testing The art of Debugging. TESTING CONVENTIONAL APPLICATIONS:
+--- Table 2 ---
+R0 |  | 
+R1 | UNIT-5 | RISK MANAGEMENT: Reactive vs. Proactive Risk strategies software risks Risk identification: Assessing overall project Risk , Risk components and drivers Risk projection: Developing a risk Table, Assessing Risk Impact Risk refinement- RMMM, RMMM Plan. SOFTWARE QUALITY ASSURANCE: Elements of SQA, SQA Tasks Goals, and Metrics Statistical Software Quality Assurance: Generic Example, Six sigma for Software Engineering. Software Reliability The SQA plan Quality Standards: The ISO 9000 Quality Standards. Agile approach to Risk and Quality Assurance
+--- Table 3 ---
+R0 | Learning Resources | 
+R1 | Text Books | 
+R2 | Software Engineering: A Practitioner's Approach, Roger S. Pressman, Bruce R. Maxim, Eighth edition, 2015, McGraw Hill, International Edition Robert C. Martin, Agile Software Development, Principles, Patterns, and Practices Alan Apt Series (2011) | 
+R3 | References | 
+R4 | Software Engineering, Ian Sommerville, Seventh edition, 2004, Pearson, India Software Engineering, K.K. Agarwal &Yogesh Singh, 2007, New Age International Publishers. Software Engineering Principles and Practice, Waman S Jawadekar, 2004, McGraw-Hill. Fundamentals of Software Engineering, Rajib Mall, Fourth edition, 2009, PHI. 5.Succeeding with Agile : Software Development Using Scrum, Pearson (2010) | 
+R5 | e-Resources & other digital material | 
+R6 | https://onlinecourses.nptel.ac.in/noc20_cs68 https://thedigitalprojectmanager.com  https://www.youtube.com/watch?v=GMOogBp3AAE&list=PL9P1J9q3_9fNfUBVYhFeoieHRnJg_vXxx&ind ex=1 | 

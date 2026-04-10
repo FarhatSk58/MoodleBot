@@ -1,0 +1,24 @@
+{
+  "batch_date": "2026-04-09",
+  "processed_at": "2026-04-09T06:33:49.291Z",
+  "topics_attempted": 1,
+  "topics_succeeded": 1,
+  "topics_failed": 0,
+  "results": [
+    {
+      "topic": "Need of OOP",
+      "status": "success",
+      "importance_score": 9,
+      "generation_flags": {
+        "generate_questions": true,
+        "generate_use_cases": true,
+        "generate_tasks": false,
+        "generate_project": false
+      },
+      "questions_generated": 9,
+      "use_cases_generated": 5,
+      "tasks_generated": 0,
+      "project_generated": false
+    }
+  ]
+}
