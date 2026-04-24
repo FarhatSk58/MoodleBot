@@ -1,9 +1,9 @@
-const Course = require('../models/Course');
-const Material = require('../models/Material');
-const cloudinary = require('../config/cloudinary');
-const User = require('../models/User');
-const { sendSuccess, sendError } = require('../utils/responseHelper');
-const { syncMaterialToChroma, removeChunksForMaterial } = require('../utils/ragSync');
+const Course = require('../../models/curriculum/Course');
+const Material = require('../../models/curriculum/Material');
+const cloudinary = require('../../config/cloudinary');
+const User = require('../../models/identity/User');
+const { sendSuccess, sendError } = require('../../utils/responseHelper');
+const { syncMaterialToChroma, removeChunksForMaterial } = require('../../utils/ragSync');
 
 
 const VALID_SECTIONS = [

@@ -2,16 +2,16 @@ const path = require('path');
 const fs = require('fs');
 
 // Models — use existing mongoose connection; do not create a new one
-const Topic = require('../../server/models/Topic');
-const AIContent = require('../../server/models/AIContent');
+const Topic = require('../../server/models/curriculum/Topic');
+const AIContent = require('../../server/models/curriculum/AIContent');
 
-const { generateContent } = require('../utils/llmService');
-const { buildImportancePrompt } = require('../prompts/importancePrompt');
-const { buildQuestionsPrompt } = require('../prompts/questionsPrompt');
-const { buildUseCasesPrompt } = require('../prompts/useCasesPrompt');
-const { buildTasksPrompt } = require('../prompts/tasksPrompt');
-const { buildMiniProjectPrompt } = require('../prompts/miniProjectPrompt');
-const { retrieveContext } = require('../utils/ragService');
+const { generateContent } = require('../services/core/llmService');
+const { buildImportancePrompt } = require('../prompts/evaluation/importancePrompt');
+const { buildQuestionsPrompt } = require('../prompts/content/questionsPrompt');
+const { buildUseCasesPrompt } = require('../prompts/content/useCasesPrompt');
+const { buildTasksPrompt } = require('../prompts/content/tasksPrompt');
+const { buildMiniProjectPrompt } = require('../prompts/content/miniProjectPrompt');
+const { retrieveContext } = require('../services/core/ragService');
 
 /**
  * runBatchProcessor — Main nightly batch function.

@@ -2,7 +2,7 @@ let Groq;
 try {
   Groq = require('groq-sdk');
 } catch (e) {
-  Groq = require('../../server/node_modules/groq-sdk');
+  Groq = require('../../../server/node_modules/groq-sdk');
 }
 
 const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent';

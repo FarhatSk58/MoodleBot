@@ -1,7 +1,7 @@
-const Job = require('../models/Job');
-const JobApplication = require('../models/JobApplication');
-const JobAnnouncement = require('../models/JobAnnouncement');
-const { sendSuccess, sendError } = require('../utils/responseHelper');
+const Job = require('../../models/jobs/Job');
+const JobApplication = require('../../models/jobs/JobApplication');
+const JobAnnouncement = require('../../models/jobs/JobAnnouncement');
+const { sendSuccess, sendError } = require('../../utils/responseHelper');
 
 /**
  * @desc    Create a new job posting

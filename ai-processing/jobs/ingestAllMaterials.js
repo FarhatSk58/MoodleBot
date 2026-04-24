@@ -2,13 +2,13 @@
  * ingestAllMaterials.js
  * One-time (or periodic) script to ingest all course materials into ChromaDB.
  * Run manually with: node jobs/ingestAllMaterials.js
- * Make sure ChromaDB is running (chroma run --path ./chroma_db) before executing.
+ * Make sure ChromaDB is running (chroma run --path C:/dev-data/moodlebot-chroma) before executing.
  */
 
 require('dotenv').config();
 const mongoose = require('mongoose');
-const Material = require('../../server/models/Material');
-const { ingestMaterial } = require('../utils/ragService');
+const Material = require('../../server/models/curriculum/Material');
+const { ingestMaterial } = require('../services/core/ragService');
 
 async function runIngestion() {
   let successCount = 0;

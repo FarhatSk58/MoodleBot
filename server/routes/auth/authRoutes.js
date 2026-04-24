@@ -1,10 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const { body } = require('express-validator');
-const { register, login, getMe, updateMe, uploadProfilePhoto, uploadResume } = require('../controllers/authController');
-const { verifyToken } = require('../middleware/auth');
-const validate = require('../middleware/validate');
-const uploadProfile = require('../middleware/uploadProfile');
+const { register, login, getMe, updateMe, uploadProfilePhoto, uploadResume } = require('../../controllers/auth/authController');
+const { verifyToken } = require('../../middleware/auth');
+const validate = require('../../middleware/validate');
+const uploadProfile = require('../../middleware/uploadProfile');
 
 // POST /api/auth/register
 router.post(

@@ -1,6 +1,6 @@
 //feebackGenerator.js
-const { generateContent } = require('./llmService');
-const { buildInterviewFeedbackPrompt } = require('../prompts/interviewFeedbackPrompt');
+const { generateContent } = require('../core/llmService');
+const { buildInterviewFeedbackPrompt } = require('../../prompts/interview/interviewFeedbackPrompt');
 
 /**
  * Generates structured feedback for a mock interview based on the transcript.
@@ -32,7 +32,7 @@ async function generateInterviewFeedback(input) {
   let courseContext = '';
   if (courseId) {
     try {
-      const { retrieveContext } = require('./ragService');
+      const { retrieveContext } = require('../core/ragService');
       // Use domain as query to retrieve broad course context for feedback
       courseContext = await retrieveContext(courseId, `${domain} interview evaluation`, 5);
     } catch (ragError) {

@@ -26,10 +26,10 @@ const {
   interviewTurn,
   endInterviewSessionEarly,
   generateAiInterviewFeedback,
-} = require('../controllers/studentController');
-const { getDsaProgress, patchDsaItem } = require('../controllers/dsaController');
-const { verifyToken, authorizeRoles } = require('../middleware/auth');
-const validate = require('../middleware/validate');
+} = require('../../controllers/student/studentController');
+const { getDsaProgress, patchDsaItem } = require('../../controllers/student/dsaController');
+const { verifyToken, authorizeRoles } = require('../../middleware/auth');
+const validate = require('../../middleware/validate');
 
 // Apply auth + student role guard to all routes
 router.use(verifyToken, authorizeRoles('student'));

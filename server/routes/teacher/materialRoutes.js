@@ -5,10 +5,10 @@ const {
   uploadMaterial,
   getCourseMaterials,
   deleteMaterial,
-} = require('../controllers/materialController');
-const { verifyToken, authorizeRoles } = require('../middleware/auth');
-const validate = require('../middleware/validate');
-const upload = require('../middleware/upload');
+} = require('../../controllers/teacher/materialController');
+const { verifyToken, authorizeRoles } = require('../../middleware/auth');
+const validate = require('../../middleware/validate');
+const upload = require('../../middleware/upload');
 
 // POST /api/materials/courses/:courseId/upload — Teacher only
 router.post(

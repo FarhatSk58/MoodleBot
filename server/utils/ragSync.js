@@ -10,7 +10,7 @@
  */
 function getIngestMaterial() {
   try {
-    return require('../../ai-processing/utils/ragService').ingestMaterial;
+    return require('../../ai-processing/services/core/ragService').ingestMaterial;
   } catch (e) {
     console.warn('[ragSync] Could not load ragService. RAG sync disabled:', e.message);
     return null;

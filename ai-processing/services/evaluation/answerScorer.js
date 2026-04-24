@@ -1,5 +1,5 @@
-const { generateContent } = require('./llmService');
-const { buildScoringPrompt } = require('../prompts/scoringPrompt');
+const { generateContent } = require('../core/llmService');
+const { buildScoringPrompt } = require('../../prompts/evaluation/scoringPrompt');
 
 /**
  * scoreAnswer — Live answer scorer. Called by studentController.js when a
@@ -40,7 +40,7 @@ async function scoreAnswer(input, courseId = null) {
   let courseContext = '';
   if (courseId) {
     try {
-      const { retrieveContext } = require('./ragService');
+      const { retrieveContext } = require('../core/ragService');
       courseContext = await retrieveContext(courseId, input.topic, 4);
     } catch (ragError) {
       console.warn('[answerScorer] RAG retrieval failed, proceeding without context:', ragError.message);

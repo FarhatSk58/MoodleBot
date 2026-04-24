@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken');
-const User = require('../models/User');
-const { sendSuccess, sendError } = require('../utils/responseHelper');
+const User = require('../../models/identity/User');
+const { sendSuccess, sendError } = require('../../utils/responseHelper');
 
 /**
  * Generate JWT token for a user (no expiry — logout is client-side)

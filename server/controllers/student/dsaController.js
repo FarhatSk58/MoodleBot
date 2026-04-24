@@ -1,5 +1,5 @@
-const { sendSuccess, sendError } = require('../utils/responseHelper');
-const DsaProgress = require('../models/DsaProgress');
+const { sendSuccess, sendError } = require('../../utils/responseHelper');
+const DsaProgress = require('../../models/progress/DsaProgress');
 
 // GET /api/student/dsa/progress
 const getDsaProgress = async (req, res) => {

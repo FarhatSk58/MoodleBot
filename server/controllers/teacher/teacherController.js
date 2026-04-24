@@ -5,14 +5,14 @@ const fs = require('fs').promises;
 const https = require('https');
 const http = require('http');
 
-const Course = require('../models/Course');
-const Topic = require('../models/Topic');
-const AIContent = require('../models/AIContent');
-const Material = require('../models/Material');
-const { sendSuccess, sendError } = require('../utils/responseHelper');
-const cloudinary = require('../config/cloudinary');
+const Course = require('../../models/curriculum/Course');
+const Topic = require('../../models/curriculum/Topic');
+const AIContent = require('../../models/curriculum/AIContent');
+const Material = require('../../models/curriculum/Material');
+const { sendSuccess, sendError } = require('../../utils/responseHelper');
+const cloudinary = require('../../config/cloudinary');
 
-const PARSER_SCRIPT_PATH = path.join(__dirname, '..', 'utils', 'syllabusParser.py');
+const PARSER_SCRIPT_PATH = path.join(__dirname, '..', '..', 'utils', 'syllabusParser.py');
 const PYTHON_EXECUTABLE = process.env.PYTHON_PATH || 'python';
 
 // ─────────────────────────────────────────────

@@ -1,8 +1,8 @@
-const { generateContent } = require('./llmService');
+const { generateContent } = require('../core/llmService');
 const {
   buildInterviewOpeningPrompt,
   buildInterviewNextTurnPrompt,
-} = require('../prompts/interviewSessionPrompt');
+} = require('../../prompts/interview/interviewSessionPrompt');
 
 function normalizeMainCount(n, fallback) {
   const x = Number(n);
@@ -15,7 +15,7 @@ async function generateInterviewOpening(input) {
   try {
     const rawPrompt = buildInterviewOpeningPrompt(input);
     if (input.courseId) {
-      const { enrichPromptWithContext } = require('./ragMiddleware');
+      const { enrichPromptWithContext } = require('../core/ragMiddleware');
       enrichedPrompt = await enrichPromptWithContext(input.courseId, rawPrompt, 4);
     } else {
       enrichedPrompt = rawPrompt;
@@ -40,7 +40,7 @@ async function generateInterviewNextTurn(input) {
   try {
     const rawPrompt = buildInterviewNextTurnPrompt(input);
     if (input.courseId) {
-      const { enrichPromptWithContext } = require('./ragMiddleware');
+      const { enrichPromptWithContext } = require('../core/ragMiddleware');
       enrichedPrompt = await enrichPromptWithContext(input.courseId, rawPrompt, 4);
     } else {
       enrichedPrompt = rawPrompt;

@@ -1,9 +1,9 @@
-const Course = require('../models/Course');
-const Topic = require('../models/Topic');
-const AIContent = require('../models/AIContent');
-const User = require('../models/User');
-const StudentProgress = require('../models/StudentProgress');
-const { sendSuccess, sendError } = require('../utils/responseHelper');
+const Course = require('../../models/curriculum/Course');
+const Topic = require('../../models/curriculum/Topic');
+const AIContent = require('../../models/curriculum/AIContent');
+const User = require('../../models/identity/User');
+const StudentProgress = require('../../models/progress/StudentProgress');
+const { sendSuccess, sendError } = require('../../utils/responseHelper');
 
 const assignCourseToMatchingStudents = async (course) => {
   const courseDepartments = Array.from(

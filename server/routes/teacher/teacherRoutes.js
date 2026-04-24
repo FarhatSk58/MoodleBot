@@ -18,9 +18,9 @@ const {
   confirmSyllabi,
   getTopicsByUnit,
   getPendingReviewTopics,
-} = require('../controllers/teacherController');
-const { verifyToken, authorizeRoles } = require('../middleware/auth');
-const validate = require('../middleware/validate');
+} = require('../../controllers/teacher/teacherController');
+const { verifyToken, authorizeRoles } = require('../../middleware/auth');
+const validate = require('../../middleware/validate');
 
 // Apply auth + teacher role guard to all routes
 router.use(verifyToken, authorizeRoles('teacher'));

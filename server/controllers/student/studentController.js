@@ -1,19 +1,19 @@
-const Course = require('../models/Course');
-const Topic = require('../models/Topic');
-const AIContent = require('../models/AIContent');
-const StudentAnswer = require('../models/StudentAnswer');
-const StudentProgress = require('../models/StudentProgress');
-const DsaProgress = require('../models/DsaProgress');
-const SQLProgress = require('../models/SQLProgress');
-const Interview = require('../models/Interview');
-const User = require('../models/User');
-const { sendSuccess, sendError } = require('../utils/responseHelper');
+const Course = require('../../models/curriculum/Course');
+const Topic = require('../../models/curriculum/Topic');
+const AIContent = require('../../models/curriculum/AIContent');
+const StudentAnswer = require('../../models/interviews/StudentAnswer');
+const StudentProgress = require('../../models/progress/StudentProgress');
+const DsaProgress = require('../../models/progress/DsaProgress');
+const SQLProgress = require('../../models/progress/SQLProgress');
+const Interview = require('../../models/interviews/Interview');
+const User = require('../../models/identity/User');
+const { sendSuccess, sendError } = require('../../utils/responseHelper');
 const {
   scoreAnswer,
   generateInterviewFeedback,
   generateInterviewOpening,
   generateInterviewNextTurn,
-} = require('../../ai-processing');
+} = require('../../../ai-processing');
 
 function formatInterviewMessagesTranscript(messages) {
   if (!Array.isArray(messages)) return '';
@@ -25,9 +25,9 @@ function formatInterviewMessagesTranscript(messages) {
     .join('\n\n');
 }
 const fetch = require('node-fetch');
-const { executeCode } = require('../utils/localExecutor');
-const { SHEET_SECTIONS } = require('../data/dsaSheet');
-const { SQL_PROBLEMS } = require('../data/sqlProblems');
+const { executeCode } = require('../../utils/localExecutor');
+const { SHEET_SECTIONS } = require('../../data/dsaSheet');
+const { SQL_PROBLEMS } = require('../../data/sqlProblems');
 
 const round1 = (n) => {
   const num = Number(n);

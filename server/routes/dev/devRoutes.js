@@ -1,9 +1,9 @@
 const express = require('express');
 const router = express.Router();
-const { verifyToken, authorizeRoles } = require('../middleware/auth');
-const Topic = require('../models/Topic');
-const AIContent = require('../models/AIContent');
-const { runBatchProcessor } = require('../../ai-processing/index');
+const { verifyToken, authorizeRoles } = require('../../middleware/auth');
+const Topic = require('../../models/curriculum/Topic');
+const AIContent = require('../../models/curriculum/AIContent');
+const { runBatchProcessor } = require('../../../ai-processing/index');
 
 // Protect all dev routes
 router.use(verifyToken, authorizeRoles('admin', 'teacher'));

@@ -9,12 +9,12 @@ const cors = require('cors');
 const connectDB = require('./config/db');
 
 // 4. Import route files
-const authRoutes = require('./routes/authRoutes');
-const adminRoutes = require('./routes/adminRoutes');
-const teacherRoutes = require('./routes/teacherRoutes');
-const studentRoutes = require('./routes/studentRoutes');
-const materialRoutes = require('./routes/materialRoutes');
-const jobRoutes = require('./routes/jobRoutes');
+const authRoutes = require('./routes/auth/authRoutes');
+const adminRoutes = require('./routes/admin/adminRoutes');
+const teacherRoutes = require('./routes/teacher/teacherRoutes');
+const studentRoutes = require('./routes/student/studentRoutes');
+const materialRoutes = require('./routes/teacher/materialRoutes');
+const jobRoutes = require('./routes/admin/jobRoutes');
 
 // 5. Import and start cron job
 const startCronJob = require('./utils/cronJob');
@@ -40,7 +40,7 @@ app.use('/api/jobs', jobRoutes);
 
 // Dev routes
 if (process.env.NODE_ENV !== 'production') {
-  const devRoutes = require('./routes/devRoutes');
+  const devRoutes = require('./routes/dev/devRoutes');
   app.use('/api/dev', devRoutes);
   console.log('Dev routes enabled — manual batch trigger available at POST /api/dev/trigger-batch');
 }

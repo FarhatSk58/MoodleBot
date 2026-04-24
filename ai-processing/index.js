@@ -8,13 +8,13 @@
 
 require('dotenv').config();
 const { runBatchProcessor } = require('./jobs/batchProcessor');
-const { scoreAnswer } = require('./utils/answerScorer');
-const { generateInterviewFeedback } = require('./utils/interviewFeedbackGenerator');
+const { scoreAnswer } = require('./services/evaluation/answerScorer');
+const { generateInterviewFeedback } = require('./services/interview/interviewFeedbackGenerator');
 const {
   generateInterviewOpening,
   generateInterviewNextTurn,
-} = require('./utils/interviewSessionGenerator');
-const { checkChromaConnection } = require('./utils/chromaHealthCheck');
+} = require('./services/interview/interviewSessionGenerator');
+const { checkChromaConnection } = require('./services/core/chromaHealthCheck');
 
 // Startup health check for ChromaDB
 checkChromaConnection().then(result => {

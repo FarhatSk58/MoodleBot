@@ -7,8 +7,8 @@ const {
   addAnnouncement,
   getStudentJobs,
   registerJob,
-} = require('../controllers/jobController');
-const { verifyToken, authorizeRoles } = require('../middleware/auth');
+} = require('../../controllers/admin/jobController');
+const { verifyToken, authorizeRoles } = require('../../middleware/auth');
 
 // All job routes require auth
 router.use(verifyToken);

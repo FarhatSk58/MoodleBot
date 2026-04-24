@@ -12,9 +12,9 @@ const {
   enrollStudent,
   deleteUser,
   autoEnrollBatch,
-} = require('../controllers/adminController');
-const { verifyToken, authorizeRoles } = require('../middleware/auth');
-const validate = require('../middleware/validate');
+} = require('../../controllers/admin/adminController');
+const { verifyToken, authorizeRoles } = require('../../middleware/auth');
+const validate = require('../../middleware/validate');
 
 // Apply auth + admin role guard to all routes
 router.use(verifyToken, authorizeRoles('admin'));
