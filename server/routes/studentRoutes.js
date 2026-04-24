@@ -3,16 +3,29 @@ const router = express.Router();
 const { body } = require('express-validator');
 const {
   getEnrolledCourses,
+  getStudentDashboard,
   getCourseTopics,
   getLearningContent,
   getTopicContent,
   submitAnswer,
   getQuestionResult,
-  getMiniProjectSubmission,
-  submitMiniProjectRepository,
-  runJudge0Code,
+  runLocalCode,
   getCourseProgress,
   getTopicsByUnit,
+  runPistonCode,
+  runPistonExecute,
+  submitTaskScore,
+  getSqlProgress,
+  markSqlSolved,
+  unmarkSqlSolved,
+  getProgressOverview,
+  getInterviews,
+  getInterviewById,
+  startInterview,
+  openInterviewSession,
+  interviewTurn,
+  endInterviewSessionEarly,
+  generateAiInterviewFeedback,
 } = require('../controllers/studentController');
 const { getDsaProgress, patchDsaItem } = require('../controllers/dsaController');
 const { verifyToken, authorizeRoles } = require('../middleware/auth');
@@ -20,6 +33,9 @@ const validate = require('../middleware/validate');
 
 // Apply auth + student role guard to all routes
 router.use(verifyToken, authorizeRoles('student'));
+
+// GET /api/student/dashboard
+router.get('/dashboard', getStudentDashboard);
 
 // GET /api/student/courses
 router.get('/courses', getEnrolledCourses);
@@ -32,24 +48,6 @@ router.get('/courses/:courseId/topics', getCourseTopics);
 
 // GET /api/student/topics/:topicId
 router.get('/topics/:topicId', getTopicContent);
-
-// GET /api/student/topics/:topicId/mini-project/submission
-router.get('/topics/:topicId/mini-project/submission', getMiniProjectSubmission);
-
-// POST /api/student/topics/:topicId/mini-project/submit
-router.post(
-  '/topics/:topicId/mini-project/submit',
-  [
-    body('repoUrl')
-      .trim()
-      .notEmpty()
-      .withMessage('Repository URL is required')
-      .custom((value) => value.startsWith('https://github.com/'))
-      .withMessage('Repository URL must start with https://github.com/'),
-  ],
-  validate,
-  submitMiniProjectRepository
-);
 
 // POST /api/student/topics/:topicId/questions/:questionId/answer
 router.post(
@@ -64,15 +62,48 @@ router.post(
 // GET /api/student/topics/:topicId/questions/:questionId/result
 router.get('/topics/:topicId/questions/:questionId/result', getQuestionResult);
 
-// POST /api/student/judge0/run
+// POST /api/student/run-code (generic local run)
 router.post(
-  '/judge0/run',
+  '/run-code',
   [
     body('code').trim().notEmpty().withMessage('Code is required'),
-    body('languageId').isInt().withMessage('languageId must be a valid Judge0 language id'),
+    body('language').trim().notEmpty().withMessage('Language is required'),
   ],
   validate,
-  runJudge0Code
+  runLocalCode
+);
+
+// POST /api/student/code/execute (single run — stdout/stderr for IDE "Run Code")
+router.post(
+  '/code/execute',
+  [
+    body('code').trim().notEmpty().withMessage('Code is required'),
+    body('language').trim().notEmpty().withMessage('Language is required'),
+  ],
+  validate,
+  runPistonExecute
+);
+
+// POST /api/student/code/run (Piston execution for tasks)
+router.post(
+  '/code/run',
+  [
+    body('code').trim().notEmpty().withMessage('Code is required'),
+    body('language').trim().notEmpty().withMessage('Language is required'),
+    body('testCases').isArray().withMessage('testCases must be an array'),
+  ],
+  validate,
+  runPistonCode
+);
+
+// POST /api/student/topics/:topicId/tasks/:taskIndex/score
+router.post(
+  '/topics/:topicId/tasks/:taskIndex/score',
+  [
+    body('score').isNumeric().withMessage('Score must be a number'),
+  ],
+  validate,
+  submitTaskScore
 );
 
 // GET /api/student/progress/:courseId
@@ -80,6 +111,10 @@ router.get('/progress/:courseId', getCourseProgress);
 
 // GET /api/student/courses/:courseId/topics/by-unit
 router.get('/courses/:courseId/topics/by-unit', getTopicsByUnit);
+
+// Progress overview dashboard
+// GET /api/student/progress/overview
+router.get('/progress/overview', getProgressOverview);
 
 // DSA sheet progress
 // GET /api/student/dsa/progress
@@ -94,6 +129,68 @@ router.patch(
   ],
   validate,
   patchDsaItem
+);
+
+// SQL practice progress
+// GET /api/student/sql/progress
+router.get('/sql/progress', getSqlProgress);
+// POST /api/student/sql/solve
+router.post(
+  '/sql/solve',
+  [
+    body('problemId').trim().notEmpty().withMessage('problemId is required'),
+    body('topic').trim().notEmpty().withMessage('topic is required'),
+    body('difficulty').trim().notEmpty().withMessage('difficulty is required'),
+  ],
+  validate,
+  markSqlSolved
+);
+// DELETE /api/student/sql/solve/:problemId
+router.delete('/sql/solve/:problemId', unmarkSqlSolved);
+
+// ==========================================
+// AI Mock Interviews
+// ==========================================
+// GET /api/student/interviews/:interviewId
+router.get('/interviews/:interviewId', getInterviewById);
+
+// POST /api/student/interviews/:interviewId/open
+router.post('/interviews/:interviewId/open', openInterviewSession);
+
+// POST /api/student/interviews/:interviewId/turn
+router.post(
+  '/interviews/:interviewId/turn',
+  [body('userText').optional()],
+  validate,
+  interviewTurn
+);
+
+// POST /api/student/interviews/:interviewId/end-early
+router.post('/interviews/:interviewId/end-early', endInterviewSessionEarly);
+
+// GET /api/student/interviews
+router.get('/interviews', getInterviews);
+
+// POST /api/student/interviews
+router.post(
+  '/interviews',
+  [
+    body('domain').trim().notEmpty().withMessage('Domain is required'),
+    body('duration').isNumeric().withMessage('Duration is required and must be a number'),
+  ],
+  validate,
+  startInterview
+);
+
+// POST /api/student/interviews/generate-feedback
+router.post(
+  '/interviews/generate-feedback',
+  [
+    body('interviewId').trim().notEmpty().withMessage('Interview ID is required'),
+    body('transcript').optional(),
+  ],
+  validate,
+  generateAiInterviewFeedback
 );
 
 module.exports = router;

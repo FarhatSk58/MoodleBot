@@ -50,6 +50,40 @@ const getCourseById = async (req, res) => {
 };
 
 // ─────────────────────────────────────────────
+// PATCH /api/teacher/courses/:courseId
+const updateCourse = async (req, res) => {
+  try {
+    const { courseId } = req.params;
+    const { title, description, courseCode, department, departments, year, semester, sections, credits, category, lectureTutorial, courseType, prerequisites, continuousEvaluation, semesterEndExamination, totalMarks, status } = req.body;
+
+    const course = await Course.findOne({ _id: courseId, assignedTeacher: req.user._id });
+    if (!course) return sendError(res, 404, 'Course not found.');
+
+    if (title !== undefined) course.title = title;
+    if (description !== undefined) course.description = description;
+    if (courseCode !== undefined) course.courseCode = courseCode;
+    if (department !== undefined) course.department = department;
+    if (departments !== undefined) course.departments = departments;
+    if (year !== undefined) course.year = year;
+    if (semester !== undefined) course.semester = semester;
+    if (sections !== undefined) course.sections = sections;
+    if (credits !== undefined) course.credits = credits;
+    if (category !== undefined) course.category = category;
+    if (lectureTutorial !== undefined) course.lectureTutorial = lectureTutorial;
+    if (courseType !== undefined) course.courseType = courseType;
+    if (prerequisites !== undefined) course.prerequisites = prerequisites;
+    if (continuousEvaluation !== undefined) course.continuousEvaluation = continuousEvaluation;
+    if (semesterEndExamination !== undefined) course.semesterEndExamination = semesterEndExamination;
+    if (totalMarks !== undefined) course.totalMarks = totalMarks;
+    if (status !== undefined) course.status = status;
+
+    await course.save();
+    return sendSuccess(res, 200, 'Course updated successfully.', course);
+  } catch (error) {
+    return sendError(res, 500, error.message);
+  }
+};
+
 // GET /api/teacher/courses/:courseId/topics
 // ─────────────────────────────────────────────
 const getCourseTopics = async (req, res) => {
@@ -645,6 +679,7 @@ function runParser(args) {
 module.exports = {
   getMyCourses,
   getCourseById,
+  updateCourse,
   getCourseTopics,
   getPendingReviewTopics,
   markTopicComplete,

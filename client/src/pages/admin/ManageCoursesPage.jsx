@@ -14,6 +14,7 @@ export default function ManageCoursesPage() {
   const { data: users } = useFetch('/admin/users');
   const { user } = useContext(AuthContext);
   const [showModal, setShowModal] = useState(false);
+  const [editingCourse, setEditingCourse] = useState(null);
   const [menuCourseId, setMenuCourseId] = useState(null);
   const [deletingCourseId, setDeletingCourseId] = useState(null);
   const menuWrapperRef = useRef(null);
@@ -83,7 +84,8 @@ export default function ManageCoursesPage() {
                 return (
                   <article
                     key={course._id}
-                    className="w-full rounded-2xl border border-slate-200 bg-white shadow-sm p-5"
+                    onClick={() => setEditingCourse(course)}
+                    className="w-full cursor-pointer rounded-2xl border border-slate-200 bg-white shadow-sm p-5 hover:shadow-md hover:border-indigo-300 transition-all duration-200"
                   >
                     <div
                       className="flex items-start justify-between gap-4"
@@ -104,7 +106,7 @@ export default function ManageCoursesPage() {
                       <div className="relative">
                         <button
                           type="button"
-                          onClick={() => toggleMenu(course._id)}
+                          onClick={(e) => { e.stopPropagation(); toggleMenu(course._id); }}
                           className="flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-500 hover:border-slate-300 hover:text-slate-700 transition-all"
                           aria-label="Course actions"
                         >
@@ -174,6 +176,17 @@ export default function ManageCoursesPage() {
       </main>
 
       {showModal && <CourseFormModal onClose={() => setShowModal(false)} onSuccess={refetch} teachers={teachers} />}
+      {editingCourse && (
+        <CourseFormModal
+          course={editingCourse}
+          onClose={() => setEditingCourse(null)}
+          onSuccess={() => {
+            setEditingCourse(null);
+            refetch();
+          }}
+          teachers={teachers}
+        />
+      )}
     </div>
   );
 }

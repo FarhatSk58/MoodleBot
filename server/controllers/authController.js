@@ -116,7 +116,8 @@ const getMe = async (req, res) => {
 
 const updateMe = async (req, res) => {
   try {
-    const { name, currentPassword, newPassword } = req.body;
+    const body = req.body || {};
+    const { name, currentPassword, newPassword } = body;
 
     const user = await User.findById(req.user._id).select('+password');
     if (!user) {
@@ -124,7 +125,66 @@ const updateMe = async (req, res) => {
     }
 
     if (name !== undefined) {
-      user.name = name.trim();
+      user.name = String(name).trim();
+    }
+
+    const applyStr = (field, val) => {
+      if (val === undefined) return;
+      user[field] = val === null ? '' : String(val).trim();
+    };
+
+    const applyArr = (field, val) => {
+      if (val === undefined) return;
+      if (!Array.isArray(val)) return;
+      user[field] = val.map((s) => String(s).trim()).filter(Boolean);
+    };
+
+    if (user.role === 'student') {
+      applyStr('phone', body.phone);
+      applyStr('bio', body.bio);
+      applyStr('college', body.college);
+      applyStr('linkedIn', body.linkedIn);
+      applyStr('github', body.github);
+      applyStr('portfolio', body.portfolio);
+      applyStr('skillLevel', body.skillLevel);
+      applyStr('goals', body.goals);
+      applyStr('weakAreas', body.weakAreas);
+
+      if (body.cgpa !== undefined && body.cgpa !== null && body.cgpa !== '') {
+        const n = Number(body.cgpa);
+        if (!Number.isFinite(n)) return sendError(res, 400, 'CGPA must be a number.');
+        user.cgpa = n;
+      }
+
+      if (body.department !== undefined) {
+        if (!['CSE-AIML', 'CSE-DS'].includes(body.department)) {
+          return sendError(res, 400, 'Invalid department.');
+        }
+        user.department = body.department;
+      }
+      if (body.year !== undefined) user.year = String(body.year).trim();
+      if (body.semester !== undefined) user.semester = String(body.semester).trim();
+
+      applyArr('skills', body.skills);
+      applyArr('interests', body.interests);
+      applyArr('preferredRoles', body.preferredRoles);
+
+      if (body.resumeUrl !== undefined) applyStr('resumeUrl', body.resumeUrl);
+    }
+
+    if (user.role === 'teacher') {
+      applyStr('phone', body.phone);
+      applyStr('bio', body.bio);
+      applyStr('designation', body.designation);
+      applyStr('experience', body.experience);
+      applyStr('specialization', body.specialization);
+
+      if (body.department !== undefined) {
+        if (!['CSE-AIML', 'CSE-DS'].includes(body.department)) {
+          return sendError(res, 400, 'Invalid department.');
+        }
+        user.department = body.department;
+      }
     }
 
     const passwordChangeRequested = Boolean(newPassword || currentPassword);
@@ -157,4 +217,39 @@ const updateMe = async (req, res) => {
   }
 };
 
-module.exports = { register, login, getMe, updateMe };
+const uploadProfilePhoto = async (req, res) => {
+  try {
+    if (!req.file) return sendError(res, 400, 'No file uploaded.');
+    const user = await User.findById(req.user._id);
+    if (!user) return sendError(res, 404, 'User not found.');
+    user.profilePicture = req.file.path;
+    await user.save();
+    const token = generateToken(user);
+    return sendSuccess(res, 200, 'Profile photo updated.', {
+      token,
+      user: sanitizeUser(user),
+    });
+  } catch (error) {
+    return sendError(res, 500, error.message);
+  }
+};
+
+const uploadResume = async (req, res) => {
+  try {
+    if (!req.file) return sendError(res, 400, 'No file uploaded.');
+    const user = await User.findById(req.user._id);
+    if (!user) return sendError(res, 404, 'User not found.');
+    if (user.role !== 'student') return sendError(res, 403, 'Only students can upload a resume.');
+    user.resumeUrl = req.file.path;
+    await user.save();
+    const token = generateToken(user);
+    return sendSuccess(res, 200, 'Resume uploaded.', {
+      token,
+      user: sanitizeUser(user),
+    });
+  } catch (error) {
+    return sendError(res, 500, error.message);
+  }
+};
+
+module.exports = { register, login, getMe, updateMe, uploadProfilePhoto, uploadResume };

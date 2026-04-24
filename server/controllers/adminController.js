@@ -54,7 +54,26 @@ const assignCourseToMatchingStudents = async (course) => {
 // ─────────────────────────────────────────────
 const createCourse = async (req, res) => {
   try {
-    const { title, description, courseCode, department, departments, year, semester, assignedTeacherId } = req.body;
+    const {
+      title,
+      description,
+      courseCode,
+      department,
+      departments,
+      year,
+      semester,
+      assignedTeacherId,
+      sections,
+      credits,
+      category,
+      lectureTutorial,
+      courseType,
+      prerequisites,
+      continuousEvaluation,
+      semesterEndExamination,
+      totalMarks,
+      status,
+    } = req.body;
 
     // Verify teacher exists and has teacher role
     const teacher = await User.findById(assignedTeacherId);
@@ -70,6 +89,16 @@ const createCourse = async (req, res) => {
       departments,
       year,
       semester,
+      sections,
+      credits,
+      category,
+      lectureTutorial,
+      courseType,
+      prerequisites,
+      continuousEvaluation,
+      semesterEndExamination,
+      totalMarks,
+      status,
       assignedTeacher: assignedTeacherId,
       createdBy: req.user._id,
     });
@@ -128,16 +157,45 @@ const getCourseById = async (req, res) => {
 const updateCourse = async (req, res) => {
   try {
     const { courseId } = req.params;
-    const { title, description, courseCode, department, departments, year, semester, assignedTeacherId } = req.body;
+    const {
+      title,
+      description,
+      courseCode,
+      department,
+      departments,
+      year,
+      semester,
+      sections,
+      credits,
+      category,
+      lectureTutorial,
+      courseType,
+      prerequisites,
+      continuousEvaluation,
+      semesterEndExamination,
+      totalMarks,
+      status,
+      assignedTeacherId,
+    } = req.body;
 
     const updateData = {};
-    if (title) updateData.title = title;
+    if (title !== undefined) updateData.title = title;
     if (description !== undefined) updateData.description = description;
     if (courseCode !== undefined) updateData.courseCode = courseCode;
     if (department !== undefined) updateData.department = department;
-    if (departments) updateData.departments = departments;
-    if (year) updateData.year = year;
-    if (semester) updateData.semester = semester;
+    if (departments !== undefined) updateData.departments = departments;
+    if (year !== undefined) updateData.year = year;
+    if (semester !== undefined) updateData.semester = semester;
+    if (sections !== undefined) updateData.sections = sections;
+    if (credits !== undefined) updateData.credits = credits;
+    if (category !== undefined) updateData.category = category;
+    if (lectureTutorial !== undefined) updateData.lectureTutorial = lectureTutorial;
+    if (courseType !== undefined) updateData.courseType = courseType;
+    if (prerequisites !== undefined) updateData.prerequisites = prerequisites;
+    if (continuousEvaluation !== undefined) updateData.continuousEvaluation = continuousEvaluation;
+    if (semesterEndExamination !== undefined) updateData.semesterEndExamination = semesterEndExamination;
+    if (totalMarks !== undefined) updateData.totalMarks = totalMarks;
+    if (status !== undefined) updateData.status = status;
 
     if (assignedTeacherId) {
       const teacher = await User.findById(assignedTeacherId);

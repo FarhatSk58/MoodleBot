@@ -12,8 +12,20 @@
  *   }
  * @returns {string} - Complete prompt string ready to send to Claude
  */
-function buildScoringPrompt(input) {
-  return `You are an expert technical interview evaluator for a Computer Science and
+function buildScoringPrompt(input, courseContext = '') {
+  let contextBlock = '';
+  if (courseContext && courseContext.trim()) {
+    contextBlock = `The following is verified course material for this topic. Use it as your PRIMARY reference.
+Do not invent facts. If the course material covers this topic, base your response on it.
+
+--- COURSE CONTEXT START ---
+${courseContext}
+--- COURSE CONTEXT END ---
+
+\n\n`;
+  }
+
+  return contextBlock + `You are an expert technical interview evaluator for a Computer Science and
 Engineering Learning Management System. A student has submitted an answer to
 an interview-style question. Your job is to evaluate it honestly and return
 detailed, actionable feedback.

@@ -72,6 +72,38 @@ const courseSchema = new mongoose.Schema(
       type: String,
       default: null,
     },
+    credits: {
+      type: Number,
+      default: null,
+    },
+    category: {
+      type: String,
+      default: '',
+    },
+    lectureTutorial: {
+      type: String,
+      default: '',
+    },
+    courseType: {
+      type: String,
+      default: '',
+    },
+    prerequisites: {
+      type: String,
+      default: '',
+    },
+    continuousEvaluation: {
+      type: Number,
+      default: null,
+    },
+    semesterEndExamination: {
+      type: Number,
+      default: null,
+    },
+    totalMarks: {
+      type: Number,
+      default: null,
+    },
   },
   { timestamps: true }
 );

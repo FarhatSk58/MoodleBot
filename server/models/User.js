@@ -59,6 +59,30 @@ const userSchema = new mongoose.Schema(
         ref: 'Course',
       },
     ],
+
+    profilePicture: { type: String, default: '' },
+    phone: { type: String, default: '', trim: true },
+    bio: { type: String, default: '', trim: true },
+
+    college: { type: String, default: '', trim: true },
+    cgpa: { type: Number, min: 0, max: 10 },
+
+    skills: { type: [String], default: [] },
+    interests: { type: [String], default: [] },
+
+    resumeUrl: { type: String, default: '' },
+    linkedIn: { type: String, default: '', trim: true },
+    github: { type: String, default: '', trim: true },
+    portfolio: { type: String, default: '', trim: true },
+    preferredRoles: { type: [String], default: [] },
+
+    skillLevel: { type: String, default: '', trim: true },
+    goals: { type: String, default: '', trim: true },
+    weakAreas: { type: String, default: '', trim: true },
+
+    designation: { type: String, default: '', trim: true },
+    experience: { type: String, default: '', trim: true },
+    specialization: { type: String, default: '', trim: true },
   },
   { timestamps: true }
 );

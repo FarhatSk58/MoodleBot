@@ -30,11 +30,24 @@ const taskSchema = new mongoose.Schema(
     task_id: { type: String },
     task_title: { type: String },
     description: { type: String },
+    difficulty: { type: String, default: 'medium' },
     chained_topics: { type: [String], default: [] },
     estimated_time: { type: String },
     uses_real_data: { type: Boolean, default: false },
     data_source: { type: String, default: null },
     skills_practiced: { type: [String], default: [] },
+    test_cases: {
+      type: [
+        new mongoose.Schema(
+          {
+            input: { type: String },
+            expected_output: { type: String },
+          },
+          { _id: false }
+        ),
+      ],
+      default: [],
+    },
   },
   { _id: false }
 );

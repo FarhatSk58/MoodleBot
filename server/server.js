@@ -14,6 +14,7 @@ const adminRoutes = require('./routes/adminRoutes');
 const teacherRoutes = require('./routes/teacherRoutes');
 const studentRoutes = require('./routes/studentRoutes');
 const materialRoutes = require('./routes/materialRoutes');
+const jobRoutes = require('./routes/jobRoutes');
 
 // 5. Import and start cron job
 const startCronJob = require('./utils/cronJob');
@@ -35,6 +36,7 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/teacher', teacherRoutes);
 app.use('/api/student', studentRoutes);
 app.use('/api/materials', materialRoutes);
+app.use('/api/jobs', jobRoutes);
 
 // Dev routes
 if (process.env.NODE_ENV !== 'production') {

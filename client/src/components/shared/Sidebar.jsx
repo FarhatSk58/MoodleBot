@@ -2,23 +2,46 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import {
   BookOpen, BarChart2, LayoutDashboard, Users,
-  CheckSquare, Inbox, LogOut, GraduationCap, UserCog, Brain, ChevronLeft, ChevronRight, Code2,
+  CheckSquare, Inbox, LogOut, GraduationCap, UserCog,
+  Database, Globe, Code, Layers, Briefcase
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { useEffect, useMemo, useState } from 'react';
 
+const STUDENT_NAV_SECTIONS = [
+  {
+    title: 'MAIN',
+    items: [
+      { to: '/student/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+      { to: '/student/courses', label: 'My Courses', icon: BookOpen },
+    ],
+  },
+  {
+    title: 'LEARNING',
+    items: [
+      { to: '/student/dsa', label: 'DSA', icon: Code },
+      { to: '/student/sql', label: 'SQL', icon: Database },
+      { to: '/student/webdev', label: 'Web Dev', icon: Globe },
+      { to: '/student/core', label: 'Core', icon: Layers },
+    ],
+  },
+  {
+    title: 'CAREER',
+    items: [{ to: '/student/jobs', label: 'Jobs', icon: Briefcase }],
+  },
+  {
+    title: 'ACCOUNT',
+    items: [{ to: '/student/profile', label: 'Edit Profile', icon: UserCog }],
+  },
+];
+
 const NAV = {
-  student: [
-    { to: '/student/courses', label: 'My Courses', icon: BookOpen },
-    { to: '/student/learning', label: 'Learning', icon: Brain },
-    { to: '/student/dsa', label: 'DSA', icon: Code2 },
-    { to: '/student/progress', label: 'My Progress', icon: BarChart2 },
-    { to: '/student/profile', label: 'Edit Profile', icon: UserCog },
-  ],
+  student: null,
   teacher: [
     { to: '/teacher/courses', label: 'My Courses', icon: BookOpen },
     { to: '/teacher/progress', label: 'Course Progress', icon: CheckSquare },
     { to: '/teacher/review', label: 'AI Review', icon: Inbox },
+    { to: '/teacher/jobs', label: 'Jobs', icon: Briefcase },
     { to: '/teacher/analytics', label: 'Analytics', icon: BarChart2 },
     { to: '/teacher/profile', label: 'Edit Profile', icon: UserCog },
   ],
@@ -38,7 +61,7 @@ const ROLE_COLORS = {
 export default function Sidebar() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
-  const items = NAV[user?.role] || [];
+  const flatItems = NAV[user?.role];
   const storageKey = useMemo(() => `lms_sidebar_collapsed_${user?.role || 'guest'}`, [user?.role]);
   const [collapsed, setCollapsed] = useState(() => {
     try {
@@ -63,6 +86,28 @@ export default function Sidebar() {
     navigate('/login');
   };
 
+  const renderNavItems = (items) =>
+    items.map((item) => {
+      const Icon = item.icon;
+      return (
+        <NavLink
+          key={item.to}
+          to={item.to}
+          className={({ isActive }) =>
+            cn(
+              'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 group',
+              isActive
+                ? 'bg-[#1E293B] text-white border-l-[3px] border-indigo-500 pl-[9px]'
+                : 'text-slate-400 hover:text-white hover:bg-slate-800/50'
+            )
+          }
+        >
+          <Icon size={18} className="flex-shrink-0" />
+          {!collapsed && item.label}
+        </NavLink>
+      );
+    });
+
   return (
     <aside
       className={cn(
@@ -84,27 +129,21 @@ export default function Sidebar() {
         </div>
       </div>
 
-      <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
-        {items.map((item) => {
-          const Icon = item.icon;
-          return (
-            <NavLink
-              key={item.to}
-              to={item.to}
-              className={({ isActive }) =>
-                cn(
-                  'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 group',
-                  isActive
-                    ? 'bg-[#1E293B] text-white border-l-[3px] border-indigo-500 pl-[9px]'
-                    : 'text-slate-400 hover:text-white hover:bg-slate-800/50'
-                )
-              }
-            >
-              <Icon size={18} className="flex-shrink-0" />
-              {!collapsed && item.label}
-            </NavLink>
-          );
-        })}
+      <nav className="flex-1 px-3 py-4 overflow-y-auto">
+        {user?.role === 'student' &&
+          STUDENT_NAV_SECTIONS.map((section, idx) => (
+            <div key={section.title} className={cn(idx > 0 && 'mt-5')}>
+              {!collapsed && (
+                <p className="px-3 mb-1.5 text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+                  {section.title}
+                </p>
+              )}
+              <div className="space-y-0.5">{renderNavItems(section.items)}</div>
+            </div>
+          ))}
+        {user?.role !== 'student' && flatItems && (
+          <div className="space-y-0.5">{renderNavItems(flatItems)}</div>
+        )}
       </nav>
 
       <div className="px-3 py-4 border-t border-slate-800">
@@ -124,13 +163,12 @@ export default function Sidebar() {
             type="button"
             onClick={() => setCollapsed((v) => !v)}
             className={cn(
-              'ml-auto w-9 h-9 rounded-lg border border-slate-800 text-slate-300 hover:text-white hover:bg-slate-800/40 transition-colors flex items-center justify-center',
-              collapsed ? '' : ''
+              'ml-auto w-9 h-9 rounded-lg border border-slate-800 text-slate-300 hover:text-white hover:bg-slate-800/40 transition-colors flex items-center justify-center'
             )}
             aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
             title={collapsed ? 'Expand' : 'Collapse'}
           >
-            {collapsed ? '>>' : '<<'}
+            {collapsed ? '»' : '«'}
           </button>
         </div>
         <button
@@ -144,4 +182,3 @@ export default function Sidebar() {
     </aside>
   );
 }
-

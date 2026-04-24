@@ -4,6 +4,7 @@ const { body } = require('express-validator');
 const {
   getMyCourses,
   getCourseById,
+  updateCourse,
   getCourseTopics,
   markTopicComplete,
   markSubtopicComplete,
@@ -27,6 +28,7 @@ router.use(verifyToken, authorizeRoles('teacher'));
 // GET /api/teacher/courses
 router.get('/courses', getMyCourses);
 router.get('/courses/:courseId', getCourseById);
+router.patch('/courses/:courseId', updateCourse);
 
 // GET /api/teacher/courses/:courseId/topics
 router.get('/courses/:courseId/topics', getCourseTopics);

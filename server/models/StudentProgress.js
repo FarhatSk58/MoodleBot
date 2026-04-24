@@ -8,6 +8,11 @@ const topicAttemptSchema = new mongoose.Schema(
     },
     questionsAttempted: { type: Number, default: 0 },
     averageScore: { type: Number, default: 0 },
+    masteryStatus: {
+      type: String,
+      enum: ['Not Started', 'Partial', 'Mastered'],
+      default: 'Not Started',
+    },
     lastAttemptAt: { type: Date, default: Date.now },
   },
   { _id: false }

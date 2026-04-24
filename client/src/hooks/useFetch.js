@@ -7,7 +7,12 @@ export function useFetch(url, deps = []) {
   const [error, setError] = useState(null);
 
   const fetchData = useCallback(async () => {
-    if (!url) return;
+    if (!url) {
+      setLoading(false);
+      setData(null);
+      setError(null);
+      return;
+    }
     setLoading(true);
     setError(null);
     try {

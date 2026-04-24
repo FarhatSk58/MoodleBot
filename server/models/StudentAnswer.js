@@ -30,7 +30,7 @@ const studentAnswerSchema = new mongoose.Schema(
     },
     type: {
       type: String,
-      enum: ['question', 'mini_project'],
+      enum: ['question', 'mini_project', 'task'],
       default: 'question',
     },
     bestAttempt: {
@@ -40,6 +40,10 @@ const studentAnswerSchema = new mongoose.Schema(
     totalAttempts: {
       type: Number,
       default: 0,
+    },
+    attempts: {
+      type: [bestAttemptSchema],
+      default: [],
     },
     answerUnlocked: {
       type: Boolean,

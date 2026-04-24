@@ -1,13 +1,30 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Mic, MicOff, Send, Loader2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
-export default function AnswerInput({ onSubmit, loading }) {
-  const [text, setText] = useState('');
+export default function AnswerInput({
+  onSubmit,
+  loading,
+  initialValue = '',
+  allowEmptySubmit = false,
+  speechDisabled = false,
+}) {
+  const [text, setText] = useState(initialValue);
   const [recording, setRecording] = useState(false);
   const recognitionRef = useRef(null);
 
+  // Sync with initialValue when it changes (e.g. after fetch)
+  useEffect(() => {
+    if (initialValue && !text) {
+      setText(initialValue);
+    }
+  }, [initialValue]);
+
   const startRecording = () => {
+    if (speechDisabled) {
+      toast.error('Unmute the microphone to use speech.');
+      return;
+    }
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SpeechRecognition) { toast.error('Speech recognition not supported in this browser'); return; }
     const r = new SpeechRecognition();
@@ -41,6 +58,7 @@ export default function AnswerInput({ onSubmit, loading }) {
         <textarea
           value={text}
           onChange={e => setText(e.target.value)}
+          onPaste={e => e.preventDefault()}
           placeholder="Type your answer here, or use the microphone to speak..."
           rows={5}
           className="w-full px-3.5 py-3 rounded-lg border border-slate-200 text-sm text-slate-800 resize-none focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
@@ -52,12 +70,13 @@ export default function AnswerInput({ onSubmit, loading }) {
         <button
           type="button"
           onClick={recording ? stopRecording : startRecording}
+          disabled={loading || speechDisabled}
           aria-label={recording ? 'Stop recording' : 'Start recording'}
           className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium border transition-all duration-200 ${
             recording
               ? 'bg-red-50 border-red-200 text-red-600 animate-pulse'
               : 'bg-white border-slate-200 text-slate-600 hover:border-indigo-300 hover:text-indigo-600'
-          }`}
+          } disabled:opacity-40`}
         >
           {recording ? <><MicOff size={14} /> Stop</> : <><Mic size={14} /> Speak</>}
         </button>
@@ -67,7 +86,7 @@ export default function AnswerInput({ onSubmit, loading }) {
         <button
           type="button"
           onClick={() => onSubmit(text)}
-          disabled={loading || !text.trim()}
+          disabled={loading || (!allowEmptySubmit && !text.trim())}
           className="ml-auto flex items-center gap-1.5 bg-indigo-500 hover:bg-indigo-600 text-white text-xs font-medium px-4 py-2 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {loading ? <><Loader2 size={14} className="animate-spin" /> Evaluating...</> : <><Send size={14} /> Submit Answer</>}

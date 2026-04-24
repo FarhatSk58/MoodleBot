@@ -1,4 +1,4 @@
-const { callClaude } = require('./claudeClient');
+const { generateContent } = require('./llmService');
 const { buildScoringPrompt } = require('../prompts/scoringPrompt');
 
 /**
@@ -23,7 +23,7 @@ const { buildScoringPrompt } = require('../prompts/scoringPrompt');
  *
  * @throws {Error} If Claude API call fails or returns invalid JSON
  */
-async function scoreAnswer(input) {
+async function scoreAnswer(input, courseId = null) {
   if (!input.topic || !input.question || !input.student_answer) {
     throw new Error('[answerScorer] Missing required fields: topic, question, or student_answer.');
   }
@@ -37,10 +37,20 @@ async function scoreAnswer(input) {
     `difficulty: ${input.difficulty} | student_answer length: ${input.student_answer.length} chars`
   );
 
-  const prompt = buildScoringPrompt(input);
+  let courseContext = '';
+  if (courseId) {
+    try {
+      const { retrieveContext } = require('./ragService');
+      courseContext = await retrieveContext(courseId, input.topic, 4);
+    } catch (ragError) {
+      console.warn('[answerScorer] RAG retrieval failed, proceeding without context:', ragError.message);
+    }
+  }
 
-  // maxTokens: 1500 is sufficient for scoring responses
-  const scoringResult = await callClaude(prompt, 1500);
+  const prompt = buildScoringPrompt(input, courseContext);
+
+  // Call the centralized LLM service using Groq with Fallback natively built-in
+  const scoringResult = await generateContent(prompt, { taskType: 'evaluation', maxTokens: 4000 });
 
   // Validate the response has the required structure
   if (typeof scoringResult.overall_score !== 'number') {

@@ -1,7 +1,8 @@
-import { useMemo } from 'react';
-import { ArrowLeft, ChevronRight } from 'lucide-react';
+import { useMemo, useState } from 'react';
+import { ArrowLeft, ChevronRight, Edit3 } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import Sidebar from '../../components/shared/Sidebar';
+import CourseFormModal from '../../components/admin/CourseFormModal';
 import LoadingSkeleton from '../../components/shared/LoadingSkeleton';
 import { useFetch } from '../../hooks/useFetch';
 
@@ -33,7 +34,8 @@ const SECTION_GROUPS = [
 export default function TeacherCourseDetailPage() {
   const { courseId } = useParams();
   const navigate = useNavigate();
-  const { data: course, loading, error } = useFetch(`/teacher/courses/${courseId}`);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const { data: course, loading, error, refetch } = useFetch(`/teacher/courses/${courseId}`);
 
   const details = useMemo(() => ({
     courseCode: course?.courseCode || '',
@@ -41,6 +43,14 @@ export default function TeacherCourseDetailPage() {
     departments: (course?.departments || []).join(', '),
     sections: (course?.sections || []).join(', '),
     status: course?.status || 'Draft',
+    credits: course?.credits ?? '',
+    category: course?.category || '',
+    lectureTutorial: course?.lectureTutorial || '',
+    courseType: course?.courseType || '',
+    prerequisites: course?.prerequisites || '',
+    continuousEvaluation: course?.continuousEvaluation ?? '',
+    semesterEndExamination: course?.semesterEndExamination ?? '',
+    totalMarks: course?.totalMarks ?? '',
   }), [course]);
 
   return (
@@ -58,14 +68,23 @@ export default function TeacherCourseDetailPage() {
           {!loading && !error && course && (
             <>
               <section className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm mb-8">
-                <div className="flex items-start justify-between gap-4 mb-6">
+                <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between mb-6">
                   <div>
                     <h1 className="text-2xl font-bold text-slate-900">{course.title}</h1>
                     <p className="text-sm text-slate-500 mt-2">{details.courseCode}</p>
                   </div>
-                  <span className="px-3 py-1 rounded-full text-sm font-medium bg-slate-100 text-slate-700">
-                    {details.status}
-                  </span>
+                  <div className="flex flex-wrap items-center gap-3">
+                    <span className="px-3 py-1 rounded-full text-sm font-medium bg-slate-100 text-slate-700">
+                      {details.status}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setShowEditModal(true)}
+                      className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:border-indigo-300 hover:text-indigo-700 transition-all"
+                    >
+                      <Edit3 size={16} /> Edit Course
+                    </button>
+                  </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
@@ -73,6 +92,14 @@ export default function TeacherCourseDetailPage() {
                   <InfoRow label="Year - Semester" value={details.yearSemester} />
                   <InfoRow label="Departments" value={details.departments} />
                   <InfoRow label="Sections" value={details.sections} />
+                  <InfoRow label="Credits" value={details.credits || 'Not set'} />
+                  <InfoRow label="Category" value={details.category || 'Not set'} />
+                  <InfoRow label="Type" value={details.courseType || 'Not set'} />
+                  <InfoRow label="Lecture-Tutorial-Practical" value={details.lectureTutorial || 'Not set'} />
+                  <InfoRow label="Prerequisites" value={details.prerequisites || 'Not set'} />
+                  <InfoRow label="Continuous Evaluation" value={details.continuousEvaluation !== '' ? details.continuousEvaluation : 'Not set'} />
+                  <InfoRow label="Semester End Exam" value={details.semesterEndExamination !== '' ? details.semesterEndExamination : 'Not set'} />
+                  <InfoRow label="Total Marks" value={details.totalMarks !== '' ? details.totalMarks : 'Not set'} />
                 </div>
               </section>
 
@@ -102,6 +129,19 @@ export default function TeacherCourseDetailPage() {
           )}
         </div>
       </main>
+      {showEditModal && (
+        <CourseFormModal
+          course={course}
+          endpoint={`/teacher/courses/${courseId}`}
+          method="patch"
+          showTeacherSelect={false}
+          onClose={() => setShowEditModal(false)}
+          onSuccess={() => {
+            setShowEditModal(false);
+            refetch();
+          }}
+        />
+      )}
     </div>
   );
 }

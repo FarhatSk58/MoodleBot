@@ -27,6 +27,25 @@
 function buildContentPrompt(contentInput) {
   const { generation_flags } = contentInput;
 
+  const tasksSchemaSnippet = generation_flags.generate_tasks
+    ? `[
+    {
+      "task_id": "t1",
+      "task_title": "string",
+      "description": "string",
+      "difficulty": "easy|medium|hard",
+      "chained_topics": ["string"],
+      "estimated_time": "string",
+      "uses_real_data": false,
+      "data_source": null,
+      "skills_practiced": ["string"],
+      "test_cases": [
+        { "input": "string", "expected_output": "string" }
+      ]
+    }
+  ]`
+    : '[]';
+
   return `You are the content generation engine for a Learning Management System used by
 B.Tech Computer Science and Engineering students in India.
 
@@ -111,11 +130,29 @@ For each task:
   task_id: string (e.g. 't1', 't2')
   task_title: string
   description: string (clear, specific — what exactly to build)
+  difficulty: 'easy' | 'medium' | 'hard' (match conceptual depth to the task; spread across tasks when multiple)
   chained_topics: array of strings from completed_topics
   estimated_time: string (e.g. '45 minutes', '1.5 hours')
   uses_real_data: boolean
   data_source: string | null
   skills_practiced: array of strings
+
+--- TASK TEST CASES (REQUIRED for every task) ---
+
+For EACH task you MUST include test_cases: an array of 3 to 5 objects.
+Each test case has exactly two fields: input and expected_output.
+
+Rules for test cases:
+  - Outputs must be exact and predictable: integers or simple strings only.
+  - Never use floating point outputs.
+  - Never use outputs that depend on formatting, spacing, or newlines.
+  - Never use random or time-dependent outputs.
+  - Inputs are a single string the program reads from stdin.
+  - Expected output is exactly what the program prints to stdout, nothing more.
+  - Vary complexity: at least one simple case, one edge case (empty input, zero, single element), one larger input.
+  - Test cases MUST match the task description and be consistent with each other.
+
+Omitting test_cases or providing fewer than 3 test cases for any task is NOT allowed.
 ` : ''}
 
 ${generation_flags.generate_project ? `
@@ -150,7 +187,7 @@ The response must be directly parseable by JSON.parse().
   "processed_at": "<ISO timestamp string>",
   "interview_questions": ${generation_flags.generate_questions ? '[ ... ]' : '[]'},
   "industry_use_cases": ${generation_flags.generate_use_cases ? '[ ... ]' : '[]'},
-  "tasks": ${generation_flags.generate_tasks ? '[ ... ]' : '[]'},
+  "tasks": ${tasksSchemaSnippet},
   "mini_project": ${generation_flags.generate_project ? '{ ... }' : 'null'}
 }
 
@@ -162,7 +199,8 @@ The response must be directly parseable by JSON.parse().
 3. interview_questions MUST always be present and non-empty (generate_questions is always true).
 4. expected_answer_outline points must be specific enough to score a student answer against.
    Vague points like 'explain the concept' are NOT acceptable.
-5. Never fabricate verified_company_example claims you are not certain about.`;
+5. Never fabricate verified_company_example claims you are not certain about.
+6. When generate_tasks is true, every task object MUST include a test_cases array with at least 3 items.`;
 }
 
 module.exports = { buildContentPrompt };

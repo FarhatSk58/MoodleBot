@@ -3,6 +3,8 @@ const Material = require('../models/Material');
 const cloudinary = require('../config/cloudinary');
 const User = require('../models/User');
 const { sendSuccess, sendError } = require('../utils/responseHelper');
+const { syncMaterialToChroma, removeChunksForMaterial } = require('../utils/ragSync');
+
 
 const VALID_SECTIONS = [
   'syllabus',
@@ -56,12 +58,21 @@ const uploadMaterial = async (req, res) => {
     });
 
     await material.save();
-
-    // Push materialId to Course.materials
     course.materials.push(material._id);
     await course.save();
 
-    return sendSuccess(res, 201, 'Material uploaded successfully.', material);
+    // Send response immediately — do not await RAG sync
+    const response = sendSuccess(res, 201, 'Material uploaded successfully.', material);
+
+    // Fire-and-forget: sync to ChromaDB in background
+    setImmediate(() => {
+      syncMaterialToChroma(material).catch(err =>
+        console.error('[materialController] Unexpected RAG sync error:', err.message)
+      );
+    });
+
+    return response;
+
   } catch (error) {
     return sendError(res, 500, error.message);
   }
@@ -128,7 +139,15 @@ const deleteMaterial = async (req, res) => {
     course.materials = course.materials.filter((id) => id.toString() !== materialId.toString());
     await course.save();
 
+    // Fire-and-forget: remove chunks from ChromaDB
+    setImmediate(() => {
+      removeChunksForMaterial(materialId.toString(), material.courseId.toString()).catch(err =>
+        console.error('[materialController] Unexpected RAG removal error:', err.message)
+      );
+    });
+
     return sendSuccess(res, 200, 'Material deleted successfully.', null);
+
   } catch (error) {
     return sendError(res, 500, error.message);
   }

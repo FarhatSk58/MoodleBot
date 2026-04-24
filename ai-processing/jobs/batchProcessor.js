@@ -5,9 +5,13 @@ const fs = require('fs');
 const Topic = require('../../server/models/Topic');
 const AIContent = require('../../server/models/AIContent');
 
-const { callClaude } = require('../utils/claudeClient');
-const { buildTopicAnalysisPrompt } = require('../prompts/topicAnalysisPrompt');
-const { buildContentPrompt } = require('../prompts/contentPrompt');
+const { generateContent } = require('../utils/llmService');
+const { buildImportancePrompt } = require('../prompts/importancePrompt');
+const { buildQuestionsPrompt } = require('../prompts/questionsPrompt');
+const { buildUseCasesPrompt } = require('../prompts/useCasesPrompt');
+const { buildTasksPrompt } = require('../prompts/tasksPrompt');
+const { buildMiniProjectPrompt } = require('../prompts/miniProjectPrompt');
+const { retrieveContext } = require('../utils/ragService');
 
 /**
  * runBatchProcessor — Main nightly batch function.
@@ -71,6 +75,7 @@ async function runBatchProcessor() {
         topic: topic.title,
         subject: courseTitle,
         completed_topics: completedSiblings.map((t) => t.title),
+        courseId: topic.courseId ? (topic.courseId._id ? topic.courseId._id.toString() : topic.courseId.toString()) : null,
       };
     })
   );
@@ -83,96 +88,87 @@ async function runBatchProcessor() {
   for (const topicData of enrichedTopics) {
     console.log(`\n[batchProcessor] Processing topic: "${topicData.topic}"`);
 
-    let analysisResult = null;
-    let contentResult = null;
-
-    // ── STEP 1: Topic Analysis ─────────────────────────────────────────────
+    // RAG: Retrieve course context once per topic, reuse across all prompts
+    let courseContext = '';
     try {
-      const analysisPrompt = buildTopicAnalysisPrompt({
-        topic: topicData.topic,
-        subject: topicData.subject,
-        completed_topics: topicData.completed_topics,
-      });
+      if (topicData.courseId) {
+        courseContext = await retrieveContext(topicData.courseId, topicData.topic, 5);
+        if (courseContext) {
+          console.log(`[batchProcessor] RAG context retrieved for: "${topicData.topic}" (${courseContext.length} chars)`);
+        } else {
+          console.log(`[batchProcessor] No RAG context found for: "${topicData.topic}", proceeding without it.`);
+        }
+      }
+    } catch (ragError) {
+      console.warn(`[batchProcessor] RAG retrieval failed for "${topicData.topic}", continuing without context:`, ragError.message);
+    }
 
-      console.log(`[batchProcessor] Step 1 — Sending analysis prompt for: "${topicData.topic}"`);
-      analysisResult = await callClaude(analysisPrompt, 500);
-
-      console.log(
-        `[batchProcessor] Analysis result: score=${analysisResult.importance_score} ` +
-        `flags=${JSON.stringify(analysisResult.generation_flags)}`
-      );
-    } catch (analysisError) {
-      console.error(
-        `[batchProcessor] ✗ Step 1 failed for "${topicData.topic}":`,
-        analysisError.message
-      );
-      // Revert this topic to pending_ai for retry tomorrow
+    // Call each prompt separately and sequentially
+    let importanceResult = null;
+    try {
+      console.log(`[batchProcessor] Step 1 — Sending importance prompt for: "${topicData.topic}"`);
+      importanceResult = await generateContent(buildImportancePrompt(topicData), { taskType: 'generation', maxTokens: 500 });
+      console.log(`[batchProcessor] Importance: ${importanceResult.importance_score}`);
+    } catch (error) {
+      console.error(`[batchProcessor] ✗ Importance scoring failed for "${topicData.topic}":`, error.message);
       await Topic.findByIdAndUpdate(topicData._id, { aiStatus: 'pending_ai' });
       failCount++;
-      batchLog.push({ topic: topicData.topic, status: 'failed', step: 'analysis', error: analysisError.message });
+      batchLog.push({ topic: topicData.topic, status: 'failed', step: 'importance', error: error.message });
       continue;
     }
 
-    // ── STEP 2: Content Generation ─────────────────────────────────────────
+    let questionsResult = { questions: [] };
     try {
-      const contentPrompt = buildContentPrompt({
-        topic: topicData.topic,
-        subject: topicData.subject,
-        completed_topics: topicData.completed_topics,
-        importance_score: analysisResult.importance_score,
-        complexity_level: analysisResult.complexity_level,
-        weightage_tag: analysisResult.weightage_tag,
-        generation_flags: analysisResult.generation_flags,
-      });
-
-      console.log(`[batchProcessor] Step 2 — Sending content prompt for: "${topicData.topic}"`);
-      contentResult = await callClaude(contentPrompt, 4000);
-
-      console.log(`[batchProcessor] Content generated for: "${topicData.topic}"`);
-    } catch (contentError) {
-      console.error(
-        `[batchProcessor] ✗ Step 2 failed for "${topicData.topic}":`,
-        contentError.message
-      );
-      await Topic.findByIdAndUpdate(topicData._id, { aiStatus: 'pending_ai' });
-      failCount++;
-      batchLog.push({ topic: topicData.topic, status: 'failed', step: 'content', error: contentError.message });
-      continue;
+      console.log(`[batchProcessor] Step 2 — Sending questions prompt for: "${topicData.topic}"`);
+      questionsResult = await generateContent(buildQuestionsPrompt(topicData, importanceResult.importance_score, courseContext), { taskType: 'generation', maxTokens: 2000 });
+    } catch (error) {
+      console.error(`[batchProcessor] ✗ Questions generation failed for "${topicData.topic}":`, error.message);
     }
 
-    // ── STEP 3: Safety enforcement + Save to MongoDB ───────────────────────
+    let useCasesResult = { use_cases: [] };
     try {
-      const flags = analysisResult.generation_flags;
+      console.log(`[batchProcessor] Step 3 — Sending use cases prompt for: "${topicData.topic}"`);
+      useCasesResult = await generateContent(buildUseCasesPrompt(topicData, courseContext), { taskType: 'generation', maxTokens: 1000 });
+    } catch (error) {
+      console.error(`[batchProcessor] ✗ Use cases generation failed for "${topicData.topic}":`, error.message);
+    }
 
-      // Safety enforcement — override AI response if flags say false
-      const industry_use_cases = flags.generate_use_cases
-        ? (contentResult.industry_use_cases || [])
-        : [];
-      const tasks = flags.generate_tasks
-        ? (contentResult.tasks || [])
-        : [];
-      const mini_project = flags.generate_project
-        ? (contentResult.mini_project || null)
-        : null;
+    let tasksResult = { tasks: [] };
+    try {
+      console.log(`[batchProcessor] Step 4 — Sending tasks prompt for: "${topicData.topic}"`);
+      tasksResult = await generateContent(buildTasksPrompt(topicData, courseContext), { taskType: 'generation', maxTokens: 2000 });
+    } catch (error) {
+      console.error(`[batchProcessor] ✗ Tasks generation failed for "${topicData.topic}":`, error.message);
+    }
 
+    let miniProjectResult = { mini_project: null };
+    try {
+      console.log(`[batchProcessor] Step 5 — Sending mini project prompt for: "${topicData.topic}"`);
+      miniProjectResult = await generateContent(buildMiniProjectPrompt(topicData), { taskType: 'generation', maxTokens: 1000 });
+    } catch (error) {
+      console.error(`[batchProcessor] ✗ Mini project generation failed for "${topicData.topic}":`, error.message);
+    }
+
+    // ── STEP 6: Save to MongoDB ───────────────────────
+    try {
       // Upsert AIContent — handles re-runs gracefully
       const aiContent = await AIContent.findOneAndUpdate(
         { topicId: topicData._id },
         {
           topicId: topicData._id,
-          importance_score: analysisResult.importance_score,
-          complexity_level: analysisResult.complexity_level,
-          weightage_tag: analysisResult.weightage_tag,
+          importance_score: importanceResult.importance_score,
+          complexity_level: importanceResult.complexity_level,
+          weightage_tag: importanceResult.weightage_tag,
           generationFlags: {
             generate_questions: true,
-            generate_use_cases: flags.generate_use_cases,
-            generate_tasks: flags.generate_tasks,
-            generate_project: flags.generate_project,
+            generate_use_cases: true,
+            generate_tasks: importanceResult.importance_score >= 6,
+            generate_project: importanceResult.importance_score >= 8,
           },
-          interview_questions: contentResult.interview_questions || [],
-          industry_use_cases,
-          tasks,
-          mini_project,
+          interview_questions: questionsResult.questions || [],
+          industry_use_cases: useCasesResult.use_cases || [],
+          tasks: tasksResult.tasks || [],
+          mini_project: miniProjectResult.mini_project || null,
           review_status: 'pending_review',
           published: false,
           processedAt: new Date(),
@@ -193,12 +189,11 @@ async function runBatchProcessor() {
       batchLog.push({
         topic: topicData.topic,
         status: 'success',
-        importance_score: analysisResult.importance_score,
-        generation_flags: flags,
-        questions_generated: (contentResult.interview_questions || []).length,
-        use_cases_generated: industry_use_cases.length,
-        tasks_generated: tasks.length,
-        project_generated: mini_project !== null,
+        importance_score: importanceResult.importance_score,
+        questions_generated: (questionsResult.questions || []).length,
+        use_cases_generated: (useCasesResult.use_cases || []).length,
+        tasks_generated: (tasksResult.tasks || []).length,
+        project_generated: (miniProjectResult.mini_project !== null && miniProjectResult.mini_project !== undefined),
       });
     } catch (saveError) {
       console.error(
